@@ -60,6 +60,7 @@ func OsArgs() string {
 }
 
 // OsArgs0 return the command name that user inputs, e.g. tiup, or tiup cluster.
+// OsArgs0返回用户输入的命令名称，例如 tiup或tiup cluster。
 func OsArgs0() string {
 	if strings.Contains(args()[0], " ") {
 		return args()[0]

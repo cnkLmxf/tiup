@@ -62,6 +62,7 @@ var cm *manager.Manager
 func scrubClusterName(n string) string {
 	// prepend the telemetry secret to cluster name, so that two installations
 	// of tiup with the same cluster name produce different hashes
+  //将遥测秘密添加到群集名称之前，以便具有相同群集名称的两个tiup安装产生不同的哈希
 	return "cluster_" + telemetry.SaltedHash(n)
 }
 
@@ -100,6 +101,7 @@ func init() {
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			var err error
 			var env *tiupmeta.Environment
+			//初始化cluster相关的目录
 			if err = spec.Initialize("cluster"); err != nil {
 				return err
 			}
@@ -109,6 +111,7 @@ func init() {
 			logger.EnableAuditLog(spec.AuditDir())
 
 			// Running in other OS/ARCH Should be fine we only download manifest file.
+			//创建本地环境，其中会拉取镜像的一些manifest文件 tar等存放到本地，下次就不用重复从远程镜像拉取了
 			env, err = tiupmeta.InitEnv(repository.Options{
 				GOOS:   "linux",
 				GOARCH: "amd64",

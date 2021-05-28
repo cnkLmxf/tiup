@@ -56,6 +56,8 @@ var initialized = false
 // environment variable TIUP_COMPONENT_DATA_DIR is set, it is used as root of
 // the profile directory, otherwise the `$HOME/.tiup` of current user is used.
 // The directory will be created before return if it does not already exist.
+//Initialize会初始化meta包的全局变量。 如果设置了环境变量TIUP_COMPONENT_DATA_DIR，它将用作配置文件目录的根，否则将使用当前用户的$ HOME / .tiup。
+//如果目录不存在，将在返回之前创建该目录。
 func Initialize(base string) error {
 	tiupData := os.Getenv(tiuplocaldata.EnvNameComponentDataDir)
 	if tiupData == "" {
@@ -67,8 +69,9 @@ func Initialize(base string) error {
 	} else {
 		profileDir = tiupData
 	}
-
+  //默认clusterBaseDir为 ~/.tiup.storage/cluster/clusters
 	clusterBaseDir := filepath.Join(profileDir, TiUPClusterDir)
+	//tidb的规格文件模板
 	tidbSpec = NewSpec(clusterBaseDir, func() Metadata {
 		return &ClusterMeta{
 			Topology: new(Specification),

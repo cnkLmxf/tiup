@@ -58,11 +58,12 @@ func InitProfile() *Profile {
 		}
 		profileDir = filepath.Join(u.HomeDir, ProfileDirName)
 	}
-
+  //解析tiup.toml文件
 	cfg, err := InitConfig(profileDir)
 	if err != nil {
 		panic("cannot read config: " + err.Error())
 	}
+	//profile包含本地地址在哪里，以及tiup.toml中的配置
 	return NewProfile(profileDir, cfg)
 }
 

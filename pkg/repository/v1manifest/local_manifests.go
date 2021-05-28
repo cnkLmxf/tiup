@@ -67,9 +67,11 @@ type FsManifests struct {
 // NewManifests creates a new FsManifests with local store at root.
 // There must exist a trusted root.json.
 func NewManifests(profile *localdata.Profile) (*FsManifests, error) {
+  //这里构建manifests
 	result := &FsManifests{profile: profile, keys: NewKeyStore()}
 
 	// Load the root manifest.
+	//加载root.json
 	manifest, err := result.load(ManifestFilenameRoot)
 	if err != nil {
 		return nil, err
@@ -83,17 +85,19 @@ func NewManifests(profile *localdata.Profile) (*FsManifests, error) {
 	}
 
 	// Populate our key store from the root manifest.
+	//加载root.json中存的owner的公钥
 	err = loadKeys(&root, result.keys)
 	if err != nil {
 		return nil, err
 	}
 
 	// Now that we've bootstrapped the key store, we can verify the root manifest we loaded earlier.
+	//现在回过头验证load的root文件是否合法
 	_, err = ReadManifest(strings.NewReader(manifest), &root, result.keys)
 	if err != nil {
 		return nil, err
 	}
-
+  //将root文件存储到缓存
 	result.cache.Store(ManifestFilenameRoot, manifest)
 
 	return result, nil
@@ -188,6 +192,7 @@ func (ms *FsManifests) LoadComponentManifest(item *ComponentItem, filename strin
 
 // load return the file for the manifest from disk.
 // The returned string is empty if the file does not exist.
+//从本地加载root文件的内容，如果不存在则返回空
 func (ms *FsManifests) load(filename string) (string, error) {
 	str, cached := ms.cache.Load(filename)
 	if cached {

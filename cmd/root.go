@@ -187,6 +187,7 @@ the latest stable version will be downloaded from the repository.`,
 	rootCmd.SetHelpCommand(newHelpCmd())
 	// If env is inited before, localdata.InitProfile() will return a valid profile
 	// or it will return an invalid one but still print usage
+	//初始化profile
 	rootCmd.SetUsageTemplate(usageTemplate(localdata.InitProfile()))
 }
 

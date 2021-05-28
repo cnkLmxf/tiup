@@ -50,7 +50,7 @@ const (
 // SpecManager control management of spec meta data.
 type SpecManager struct {
 	base    string
-	newMeta func() Metadata
+	newMeta func() Metadata //这里代表的是topoloy.yaml的文件结构
 }
 
 // NewSpec create a spec instance.
@@ -90,11 +90,11 @@ func (s *SpecManager) SaveMeta(clusterName string, meta Metadata) error {
 
 	metaFile := s.Path(clusterName, metaFileName)
 	backupDir := s.Path(clusterName, BackupDirName)
-
+  //确保目录存在
 	if err := s.ensureDir(clusterName); err != nil {
 		return wrapError(err)
 	}
-
+  //创建back目录
 	if err := os.MkdirAll(backupDir, 0755); err != nil {
 		return wrapError(err)
 	}

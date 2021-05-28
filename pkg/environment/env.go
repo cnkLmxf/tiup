@@ -91,7 +91,9 @@ func InitEnv(options repository.Options) (*Environment, error) {
 
 	// Initialize the repository
 	// Replace the mirror if some sub-commands use different mirror address
+	//获取mirror地址
 	mirrorAddr := Mirror()
+	//构造mirror
 	mirror := repository.NewMirror(mirrorAddr, repository.MirrorOptions{})
 	if err := mirror.Open(); err != nil {
 		return nil, err

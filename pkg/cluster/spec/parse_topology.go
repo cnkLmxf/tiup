@@ -67,7 +67,7 @@ func ParseTopologyYaml(file string, out Topology) error {
 	if err != nil {
 		return err
 	}
-
+  //yaml文件严格解析
 	if err = yaml.UnmarshalStrict(yamlFile, out); err != nil {
 		return ErrTopologyParseFailed.
 			Wrap(err, "Failed to parse topology file %s", file).
@@ -82,6 +82,7 @@ Please check the syntax of your topology file {{ColorKeyword}}{{.File}}{{ColorRe
 }
 
 // ExpandRelativeDir fill DeployDir, DataDir and LogDir to absolute path
+//将相对目录解析为绝对目录
 func ExpandRelativeDir(topo Topology) {
 	expandRelativePath(deployUser(topo), topo)
 }

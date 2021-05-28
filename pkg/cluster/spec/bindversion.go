@@ -20,6 +20,8 @@ import (
 
 // TiDBComponentVersion maps the TiDB version to the third components binding version
 // Empty version should be treate as the the last stable one
+// TiDBComponentVersion将TiDB版本映射到第三个组件绑定版本
+// 空版本应被视为最后一个稳定版本
 func TiDBComponentVersion(comp, version string) string {
 	switch comp {
 	case ComponentAlertmanager,

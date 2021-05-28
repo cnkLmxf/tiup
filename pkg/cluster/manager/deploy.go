@@ -52,6 +52,7 @@ type DeployOptions struct {
 
 // DeployerInstance is a instance can deploy to a target deploy directory.
 type DeployerInstance interface {
+  //这里定义了一个方法
 	Deploy(b *task.Builder, srcPath string, deployDir string, version string, name string, clusterVersion string)
 }
 
@@ -65,10 +66,11 @@ func (m *Manager) Deploy(
 	skipConfirm bool,
 	gOpt operator.Options,
 ) error {
+  //验证名称合法性
 	if err := clusterutil.ValidateClusterNameOrError(name); err != nil {
 		return err
 	}
-
+  //同名集群存在
 	exist, err := m.specManager.Exist(name)
 	if err != nil {
 		return err
@@ -84,6 +86,7 @@ func (m *Manager) Deploy(
 	metadata := m.specManager.NewMetadata()
 	topo := metadata.GetTopology()
 
+	//解析拓扑结构
 	if err := spec.ParseTopologyYaml(topoFile, topo); err != nil {
 		return err
 	}
@@ -94,6 +97,7 @@ func (m *Manager) Deploy(
 		// monitoring components are only useful when deployed with
 		// core components, we do not support deploying any bare
 		// monitoring system.
+    //监视组件仅在与核心组件一起部署时才有用，我们不支持部署任何裸露的监视系统。
 		case spec.ComponentGrafana,
 			spec.ComponentPrometheus,
 			spec.ComponentAlertmanager:
@@ -122,14 +126,16 @@ func (m *Manager) Deploy(
 			return perrs.Errorf("check TiKV label failed, please fix that before continue:\n%s", err)
 		}
 	}
-
+  //获取通过tiup部署的所有集群
 	clusterList, err := m.specManager.GetAllClusters()
 	if err != nil {
 		return err
 	}
+	//检查端口冲突
 	if err := spec.CheckClusterPortConflict(clusterList, name, topo); err != nil {
 		return err
 	}
+	//检查目录冲突
 	if err := spec.CheckClusterDirConflict(clusterList, name, topo); err != nil {
 		return err
 	}
@@ -189,6 +195,7 @@ func (m *Manager) Deploy(
 		if _, found := uniqueHosts[inst.GetHost()]; !found {
 			// check for "imported" parameter, it can not be true when deploying and scaling out
 			// only for tidb now, need to support dm
+      //检查“ imported”参数，现在仅为tidb部署和扩展时，该参数不能为true，需要支持dm
 			if inst.IsImported() && m.sysName == "tidb" {
 				iterErr = errors.New(
 					"'imported' is set to 'true' for new instance, this is only used " +
@@ -226,7 +233,7 @@ func (m *Manager) Deploy(
 					globalOptions.SSHType,
 				).
 				EnvInit(inst.GetHost(), globalOptions.User, globalOptions.Group, opt.SkipCreateUser || globalOptions.User == opt.User).
-				Mkdir(globalOptions.User, inst.GetHost(), dirs...).
+				Mkdir(globalOptions.User, inst.GetHost(), dirs...).//创建目录
 				BuildAsStep(fmt.Sprintf("  - Prepare %s:%d", inst.GetHost(), inst.GetSSHPort()))
 			envInitTasks = append(envInitTasks, t)
 		}
@@ -244,11 +251,13 @@ func (m *Manager) Deploy(
 		version := m.bindVersion(inst.ComponentName(), clusterVersion)
 		deployDir := spec.Abs(globalOptions.User, inst.DeployDir())
 		// data dir would be empty for components which don't need it
+    // 不需要的组件的数据目录为空
 		dataDirs := spec.MultiDirAbs(globalOptions.User, inst.DataDir())
 		// log dir will always be with values, but might not used by the component
 		logDir := spec.Abs(globalOptions.User, inst.LogDir())
 		// Deploy component
 		// prepare deployment server
+		//deploy目录包括：部署目录，log目录，bin目录，conf目录，scripts目录
 		deployDirs := []string{
 			deployDir, logDir,
 			filepath.Join(deployDir, "bin"),
@@ -260,10 +269,11 @@ func (m *Manager) Deploy(
 		}
 		t := task.NewBuilder().
 			UserSSH(inst.GetHost(), inst.GetSSHPort(), globalOptions.User, gOpt.SSHTimeout, gOpt.SSHType, globalOptions.SSHType).
-			Mkdir(globalOptions.User, inst.GetHost(), deployDirs...).
-			Mkdir(globalOptions.User, inst.GetHost(), dataDirs...)
+			Mkdir(globalOptions.User, inst.GetHost(), deployDirs...).//执行相关的目录
+			Mkdir(globalOptions.User, inst.GetHost(), dataDirs...)//数据相关的目录
 
 		if deployerInstance, ok := inst.(DeployerInstance); ok {
+		  //执行部署方法，这是个模板方法
 			deployerInstance.Deploy(t, "", deployDir, version, name, clusterVersion)
 		} else {
 			// copy dependency component if needed
@@ -300,6 +310,7 @@ func (m *Manager) Deploy(
 		}
 
 		// generate configs for the component
+		//为组件生成配置
 		t = t.InitConfig(
 			name,
 			clusterVersion,
@@ -314,7 +325,7 @@ func (m *Manager) Deploy(
 				Cache:  m.specManager.Path(name, spec.TempConfigPath),
 			},
 		)
-
+    //将生成配置任务添加到整体的部署任务中
 		deployCompTasks = append(deployCompTasks,
 			t.BuildAsStep(fmt.Sprintf("  - Copy %s -> %s", inst.ComponentName(), inst.GetHost())),
 		)
@@ -325,6 +336,7 @@ func (m *Manager) Deploy(
 	}
 
 	// Deploy monitor relevant components to remote
+	//部署监控相关的组件，包括下载任务和部署任务
 	dlTasks, dpTasks := buildMonitoredDeployTask(
 		m.bindVersion,
 		m.specManager,
@@ -338,12 +350,13 @@ func (m *Manager) Deploy(
 	downloadCompTasks = append(downloadCompTasks, dlTasks...)
 	deployCompTasks = append(deployCompTasks, dpTasks...)
 
+	//这是个Serial任务
 	builder := task.NewBuilder().
 		Step("+ Generate SSH keys",
 			task.NewBuilder().SSHKeyGen(m.specManager.Path(name, "ssh", "id_rsa")).Build()).
-		ParallelStep("+ Download TiDB components", false, downloadCompTasks...).
-		ParallelStep("+ Initialize target host environments", false, envInitTasks...).
-		ParallelStep("+ Copy files", false, deployCompTasks...)
+		ParallelStep("+ Download TiDB components", false, downloadCompTasks...).//下载组件任务
+		ParallelStep("+ Initialize target host environments", false, envInitTasks...).//初始化环境任务
+		ParallelStep("+ Copy files", false, deployCompTasks...)//部署组件任务
 
 	if afterDeploy != nil {
 		afterDeploy(builder, topo)
@@ -358,9 +371,10 @@ func (m *Manager) Deploy(
 		}
 		return err
 	}
-
+  //设置~/.tiup/storage/cluster/clusters/xx下的meta.yaml文件中的内容
 	metadata.SetUser(globalOptions.User)
 	metadata.SetVersion(clusterVersion)
+	//保存写入到文件
 	err = m.specManager.SaveMeta(name, metadata)
 
 	if err != nil {

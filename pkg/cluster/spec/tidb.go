@@ -125,12 +125,14 @@ func (i *TiDBInstance) InitConfig(
 	paths meta.DirPaths,
 ) error {
 	topo := i.topo.(*Specification)
+	//首先构建一个service服务，放在了/etc/systemd/system目录下
 	if err := i.BaseInstance.InitConfig(ctx, e, topo.GlobalOptions, deployUser, paths); err != nil {
 		return err
 	}
 
 	enableTLS := topo.GlobalOptions.TLSEnabled
 	spec := i.InstanceSpec.(*TiDBSpec)
+	//构建shell脚本
 	cfg := scripts.
 		NewTiDBScript(i.GetHost(), paths.Deploy, paths.Log).
 		WithPort(spec.Port).
@@ -140,11 +142,13 @@ func (i *TiDBInstance) InitConfig(
 		WithListenHost(i.GetListenHost()).
 		WithAdvertiseAddr(spec.Host)
 	fp := filepath.Join(paths.Cache, fmt.Sprintf("run_tidb_%s_%d.sh", i.GetHost(), i.GetPort()))
+	//构建一个shell文件，放到临时cache中
 	if err := cfg.ConfigToFile(fp); err != nil {
 		return err
 	}
 
 	dst := filepath.Join(paths.Deploy, "scripts", "run_tidb.sh")
+	//这里在发送的时候换名了
 	if err := e.Transfer(ctx, fp, dst, false); err != nil {
 		return err
 	}
@@ -194,11 +198,11 @@ func (i *TiDBInstance) InitConfig(
 			paths.Deploy,
 			i.Role())
 	}
-
+  //这里是合并配置文件 .toml,并发送到了目标机器（conf目录下的配置文件）
 	if err := i.MergeServerConfig(ctx, e, globalConfig, spec.Config, paths); err != nil {
 		return err
 	}
-
+  //通过可执行文件（发布组件时指定的entry为入口）验证config文件是否符合要求
 	return checkConfig(ctx, e, i.ComponentName(), clusterVersion, i.OS(), i.Arch(), i.ComponentName()+".toml", paths, nil)
 }
 

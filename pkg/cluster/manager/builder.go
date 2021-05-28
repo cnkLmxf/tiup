@@ -533,9 +533,10 @@ func buildDownloadCompTasks(clusterVersion string, topo spec.Topology, bindVersi
 				// download spark as dependency of tispark
 				tasks = append(tasks, buildDownloadSparkTask(inst))
 			} else {
+			  //为tidb内部组件绑定版本，prometheus,grafana,altermanager等组件不绑定版本，最后下载的时候会获取最新的版本
 				version = bindVersion(inst.ComponentName(), clusterVersion)
 			}
-
+			//构建task
 			t := task.NewBuilder().
 				Download(inst.ComponentName(), inst.OS(), inst.Arch(), version).
 				BuildAsStep(fmt.Sprintf("  - Download %s:%s (%s/%s)",
