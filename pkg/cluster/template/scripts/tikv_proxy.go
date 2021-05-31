@@ -24,23 +24,23 @@ import (
 
 // TikvProxyScript represent the data to generate Tikv-Proxy config
 type TikvProxyScript struct {
-  Name       string
+	Name       string
 	IP         string
 	ListenHost string
 	Port       int
 	DeployDir  string
 	LogDir     string
-  NumaNode    string
+	NumaNode   string
 	Endpoints  []*PDScript
 }
 
 // NewTikvProxyScript returns a TikvProxyScript with given arguments
 func NewTikvProxyScript(ip, deployDir, logDir string) *TikvProxyScript {
 	return &TikvProxyScript{
-		IP:         ip,
-		Port:       21000,
-		DeployDir:  deployDir,
-		LogDir:     logDir,
+		IP:        ip,
+		Port:      21000,
+		DeployDir: deployDir,
+		LogDir:    logDir,
 	}
 }
 
@@ -58,9 +58,10 @@ func (c *TikvProxyScript) WithPort(port int) *TikvProxyScript {
 
 // WithNumaNode set NumaNode field of TiKVScript
 func (c *TikvProxyScript) WithNumaNode(numa string) *TikvProxyScript {
-  c.NumaNode = numa
-  return c
+	c.NumaNode = numa
+	return c
 }
+
 // AppendEndpoints add new PDScript to Endpoints field
 func (c *TikvProxyScript) AppendEndpoints(ends ...*PDScript) *TikvProxyScript {
 	c.Endpoints = append(c.Endpoints, ends...)

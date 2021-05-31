@@ -63,14 +63,14 @@ func ParseAndImportInventory(dir, ansCfgFile string, clsMeta *spec.ClusterMeta, 
 		clsMeta.Topology.TiDBServers[i] = ins.(*spec.TiDBSpec)
 	}
 	//add tikvProxyServers
-  for i := 0; i < len(clsMeta.Topology.TikvProxyServers); i++ {
-    s := clsMeta.Topology.TikvProxyServers[i]
-    ins, err := parseDirs(clsMeta.User, s, sshTimeout, sshType)
-    if err != nil {
-      return err
-    }
-    clsMeta.Topology.TikvProxyServers[i] = ins.(*spec.TikvProxySpec)
-  }
+	for i := 0; i < len(clsMeta.Topology.TikvProxyServers); i++ {
+		s := clsMeta.Topology.TikvProxyServers[i]
+		ins, err := parseDirs(clsMeta.User, s, sshTimeout, sshType)
+		if err != nil {
+			return err
+		}
+		clsMeta.Topology.TikvProxyServers[i] = ins.(*spec.TikvProxySpec)
+	}
 	for i := 0; i < len(clsMeta.Topology.TiKVServers); i++ {
 		s := clsMeta.Topology.TiKVServers[i]
 		ins, err := parseDirs(clsMeta.User, s, sshTimeout, sshType)

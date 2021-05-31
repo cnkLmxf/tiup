@@ -199,21 +199,21 @@ func LoadConfig(clsName string, cls *spec.ClusterMeta) error {
 		cls.Topology.TiDBServers[i].Config = spec.MergeConfig(cls.Topology.TiDBServers[i].Config, local)
 	}
 
-  // deal with tikv-proxy config
-  for _, srv := range cls.Topology.TikvProxyServers {
-    prefixkey := spec.ComponentTikvProxy
-    fname := spec.ClusterPath(clsName, spec.AnsibleImportedConfigPath, fmt.Sprintf("%s-%s-%d.toml", prefixkey, srv.Host, srv.Port))
-    if config, err := parseConfigFile(fname); err == nil {
-      configs = append(configs, config)
-    } else {
-      return err
-    }
-  }
-  global, locals = diffConfigs(configs)
-  cls.Topology.ServerConfigs.TikvProxy = spec.MergeConfig(cls.Topology.ServerConfigs.TikvProxy, global)
-  for i, local := range locals {
-    cls.Topology.TikvProxyServers[i].Config = spec.MergeConfig(cls.Topology.TikvProxyServers[i].Config, local)
-  }
+	// deal with tikv-proxy config
+	for _, srv := range cls.Topology.TikvProxyServers {
+		prefixkey := spec.ComponentTikvProxy
+		fname := spec.ClusterPath(clsName, spec.AnsibleImportedConfigPath, fmt.Sprintf("%s-%s-%d.toml", prefixkey, srv.Host, srv.Port))
+		if config, err := parseConfigFile(fname); err == nil {
+			configs = append(configs, config)
+		} else {
+			return err
+		}
+	}
+	global, locals = diffConfigs(configs)
+	cls.Topology.ServerConfigs.TikvProxy = spec.MergeConfig(cls.Topology.ServerConfigs.TikvProxy, global)
+	for i, local := range locals {
+		cls.Topology.TikvProxyServers[i].Config = spec.MergeConfig(cls.Topology.TikvProxyServers[i].Config, local)
+	}
 
 	// deal with tikv config
 	configs = []map[string]interface{}{}

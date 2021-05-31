@@ -406,7 +406,7 @@ func (s *Specification) Merge(that Topology) Topology {
 		ServerConfigs:    s.ServerConfigs,
 		TiDBServers:      append(s.TiDBServers, spec.TiDBServers...),
 		//add tikvproxyServers
-    TikvProxyServers: append(s.TikvProxyServers, spec.TikvProxyServers...),
+		TikvProxyServers: append(s.TikvProxyServers, spec.TikvProxyServers...),
 		TiKVServers:      append(s.TiKVServers, spec.TiKVServers...),
 		PDServers:        append(s.PDServers, spec.PDServers...),
 		TiFlashServers:   append(s.TiFlashServers, spec.TiFlashServers...),
@@ -605,7 +605,7 @@ func (s *Specification) ComponentsByStartOrder() (comps []Component) {
 	comps = append(comps, &PumpComponent{s})
 	comps = append(comps, &TiDBComponent{s})
 	//add tikv-proxy
-  comps = append(comps, &TikvProxyComponent{s})
+	comps = append(comps, &TikvProxyComponent{s})
 	comps = append(comps, &TiFlashComponent{s})
 	comps = append(comps, &DrainerComponent{s})
 	comps = append(comps, &CDCComponent{s})
@@ -626,7 +626,7 @@ func (s *Specification) ComponentsByUpdateOrder() (comps []Component) {
 	comps = append(comps, &TiKVComponent{s})
 	comps = append(comps, &PumpComponent{s})
 	comps = append(comps, &TiDBComponent{s})
-  comps = append(comps, &TikvProxyComponent{s})
+	comps = append(comps, &TikvProxyComponent{s})
 	comps = append(comps, &DrainerComponent{s})
 	comps = append(comps, &MonitorComponent{s})
 	comps = append(comps, &GrafanaComponent{s})

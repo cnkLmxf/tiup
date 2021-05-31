@@ -27,12 +27,12 @@ import (
 
 // TikvProxySpec represents the Tikv-Proxy topology specification in topology.yaml
 type TikvProxySpec struct {
-	Host            string                 `yaml:"host"`
-	ListenHost      string                 `yaml:"listen_host,omitempty"`
-	SSHPort         int                    `yaml:"ssh_port,omitempty" validate:"ssh_port:editable"`
-	Imported        bool                   `yaml:"imported,omitempty"`
-	Patched         bool                   `yaml:"patched,omitempty"`
-	Port            int                    `yaml:"port" default:"21000"`
+	Host       string `yaml:"host"`
+	ListenHost string `yaml:"listen_host,omitempty"`
+	SSHPort    int    `yaml:"ssh_port,omitempty" validate:"ssh_port:editable"`
+	Imported   bool   `yaml:"imported,omitempty"`
+	Patched    bool   `yaml:"patched,omitempty"`
+	Port       int    `yaml:"port" default:"21000"`
 	//StatusPort      int                    `yaml:"status_port" default:"10080"`
 	DeployDir       string                 `yaml:"deploy_dir,omitempty"`
 	LogDir          string                 `yaml:"log_dir,omitempty"`
@@ -63,7 +63,7 @@ func (s *TikvProxySpec) IsImported() bool {
 	return s.Imported
 }
 
-// TiDBComponent represents TiDB component.
+// TikvProxyComponent represents TiDB component.
 type TikvProxyComponent struct{ Topology *Specification }
 
 // Name implements Component interface.
@@ -96,7 +96,7 @@ func (c *TikvProxyComponent) Instances() []Instance {
 				s.DeployDir,
 			},
 			StatusFn: func(tlsCfg *tls.Config, _ ...string) string {
-        return "-"
+				return "-"
 			},
 		}, c.Topology})
 	}
@@ -129,9 +129,9 @@ func (i *TikvProxyInstance) InitConfig(
 		i.GetHost(),
 		paths.Deploy,
 		paths.Log,
-	).WithPort(spec.Port).// listen port
-		AppendEndpoints(topo.Endpoints(deployUser)...).
-		WithListenHost(i.GetListenHost())// listen host
+	).WithPort(spec.Port). // listen port
+				AppendEndpoints(topo.Endpoints(deployUser)...).
+				WithListenHost(i.GetListenHost()) // listen host
 	fp := filepath.Join(paths.Cache, fmt.Sprintf("run_proxy_%s_%d.sh", i.GetHost(), i.GetPort()))
 	if err := cfg.ConfigToFile(fp); err != nil {
 		return err
