@@ -92,6 +92,7 @@ type (
 		Pump           map[string]interface{} `yaml:"pump"`
 		Drainer        map[string]interface{} `yaml:"drainer"`
 		CDC            map[string]interface{} `yaml:"cdc"`
+		TikvProxy      map[string]interface{} `yaml:"proxy"`
 	}
 
 	// Specification represents the specification of topology.yaml
@@ -111,6 +112,7 @@ type (
 		Monitors         []*PrometheusSpec    `yaml:"monitoring_servers"`
 		Grafanas         []*GrafanaSpec       `yaml:"grafana_servers,omitempty"`
 		Alertmanagers    []*AlertmanagerSpec  `yaml:"alertmanager_servers,omitempty"`
+		TikvProxyServers []*TikvProxySpec     `yaml:"proxy_servers,omitempty"`
 	}
 )
 
@@ -403,6 +405,8 @@ func (s *Specification) Merge(that Topology) Topology {
 		MonitoredOptions: s.MonitoredOptions,
 		ServerConfigs:    s.ServerConfigs,
 		TiDBServers:      append(s.TiDBServers, spec.TiDBServers...),
+		//add tikvproxyServers
+    TikvProxyServers: append(s.TikvProxyServers, spec.TikvProxyServers...),
 		TiKVServers:      append(s.TiKVServers, spec.TiKVServers...),
 		PDServers:        append(s.PDServers, spec.PDServers...),
 		TiFlashServers:   append(s.TiFlashServers, spec.TiFlashServers...),
@@ -595,11 +599,13 @@ func (s *Specification) ComponentsByStopOrder() (comps []Component) {
 
 // ComponentsByStartOrder return component in the order need to start.
 func (s *Specification) ComponentsByStartOrder() (comps []Component) {
-	// "pd", "tikv", "pump", "tidb", "tiflash", "drainer", "cdc", "prometheus", "grafana", "alertmanager"
+	// "pd", "tikv", "pump", "tidb","proxy",  "tiflash", "drainer", "cdc", "prometheus", "grafana", "alertmanager"
 	comps = append(comps, &PDComponent{s})
 	comps = append(comps, &TiKVComponent{s})
 	comps = append(comps, &PumpComponent{s})
 	comps = append(comps, &TiDBComponent{s})
+	//add tikv-proxy
+  comps = append(comps, &TikvProxyComponent{s})
 	comps = append(comps, &TiFlashComponent{s})
 	comps = append(comps, &DrainerComponent{s})
 	comps = append(comps, &CDCComponent{s})
@@ -613,13 +619,14 @@ func (s *Specification) ComponentsByStartOrder() (comps []Component) {
 
 // ComponentsByUpdateOrder return component in the order need to be updated.
 func (s *Specification) ComponentsByUpdateOrder() (comps []Component) {
-	// "tiflash", "cdc", "pd", "tikv", "pump", "tidb", "drainer", "prometheus", "grafana", "alertmanager"
+	// "tiflash", "cdc", "pd", "tikv", "pump", "tidb","proxy", "drainer", "prometheus", "grafana", "alertmanager"
 	comps = append(comps, &TiFlashComponent{s})
 	comps = append(comps, &CDCComponent{s})
 	comps = append(comps, &PDComponent{s})
 	comps = append(comps, &TiKVComponent{s})
 	comps = append(comps, &PumpComponent{s})
 	comps = append(comps, &TiDBComponent{s})
+  comps = append(comps, &TikvProxyComponent{s})
 	comps = append(comps, &DrainerComponent{s})
 	comps = append(comps, &MonitorComponent{s})
 	comps = append(comps, &GrafanaComponent{s})

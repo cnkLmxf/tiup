@@ -73,6 +73,23 @@ func parseDirs(user string, ins spec.InstanceSpec, sshTimeout uint64, sshType ex
 			}
 		}
 		return newIns, nil
+  case spec.ComponentTikvProxy:
+    // parse dirs
+    newIns := ins.(*spec.TikvProxySpec)
+    for _, line := range strings.Split(stdout, "\n") {
+      if strings.HasPrefix(line, "DEPLOY_DIR=") {
+        newIns.DeployDir = strings.TrimPrefix(line, "DEPLOY_DIR=")
+        continue
+      }
+      if strings.Contains(line, "--log-file=") {
+        fullLog := strings.Split(line, " ")[8] // 8 whitespaces ahead
+        logDir := strings.TrimSuffix(strings.TrimPrefix(fullLog,
+          "--log-file=\""), "/proxy.log\"")
+        newIns.LogDir = logDir
+        continue
+      }
+    }
+    return newIns, nil
 	case spec.ComponentTiKV:
 		// parse dirs
 		newIns := ins.(*spec.TiKVSpec)

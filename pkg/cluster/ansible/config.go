@@ -40,7 +40,7 @@ func ImportConfig(name string, clsMeta *spec.ClusterMeta, sshTimeout uint64, ssh
 		log.Infof("Copying config file(s) of %s...", comp.Name())
 		for _, inst := range comp.Instances() {
 			switch inst.ComponentName() {
-			case spec.ComponentPD, spec.ComponentTiKV, spec.ComponentPump, spec.ComponentTiDB, spec.ComponentDrainer:
+			case spec.ComponentPD, spec.ComponentTiKV, spec.ComponentPump, spec.ComponentTiDB,spec.ComponentTikvProxy, spec.ComponentDrainer:
 				t := task.NewBuilder().
 					SSHKeySet(
 						spec.ClusterPath(name, "ssh", "id_rsa"),

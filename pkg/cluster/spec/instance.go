@@ -37,6 +37,7 @@ import (
 // Components names
 const (
 	ComponentTiDB             = "tidb"
+  ComponentTikvProxy        = "proxy"
 	ComponentTiKV             = "tikv"
 	ComponentPD               = "pd"
 	ComponentTiFlash          = "tiflash"
