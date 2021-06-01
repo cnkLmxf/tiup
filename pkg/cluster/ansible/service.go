@@ -82,9 +82,9 @@ func parseDirs(user string, ins spec.InstanceSpec, sshTimeout uint64, sshType ex
 				continue
 			}
 			if strings.Contains(line, "--log-file=") {
-				fullLog := strings.Split(line, " ")[8] // 8 whitespaces ahead
+				fullLog := strings.Split(line, " ")[0] // 4 whitespaces ahead
 				logDir := strings.TrimSuffix(strings.TrimPrefix(fullLog,
-					"--log-file=\""), "/proxy.log\"")
+					"\t--log-file=\""), "/proxy.log\"")
 				newIns.LogDir = logDir
 				continue
 			}
