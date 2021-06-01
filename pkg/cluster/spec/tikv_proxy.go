@@ -33,7 +33,7 @@ type TikvProxySpec struct {
 	Imported   bool   `yaml:"imported,omitempty"`
 	Patched    bool   `yaml:"patched,omitempty"`
 	Port       int    `yaml:"port" default:"21000"`
-	//StatusPort      int                    `yaml:"status_port" default:"10080"`
+	// StatusPort      int                    `yaml:"status_port" default:"10080"`
 	DeployDir       string                 `yaml:"deploy_dir,omitempty"`
 	LogDir          string                 `yaml:"log_dir,omitempty"`
 	NumaNode        string                 `yaml:"numa_node,omitempty" validate:"numa_node:editable"`
