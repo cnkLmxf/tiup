@@ -48,7 +48,7 @@ func (u *UpdateMeta) Execute(ctx context.Context) error {
 
 	// add update tikv-proxy
   tikvProxyServers := make([]*spec.TikvProxySpec, 0)
-  for i, instance := range (&spec.TiKVComponent{Topology: topo}).Instances() {
+  for i, instance := range (&spec.TikvProxyComponent{Topology: topo}).Instances() {
     if deleted.Exist(instance.ID()) {
       continue
     }
