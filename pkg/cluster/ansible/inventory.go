@@ -35,6 +35,7 @@ var (
 	AnsibleConfigFile = "ansible.cfg"
 	groupVarsGlobal   = "group_vars/all.yml"
 	groupVarsTiDB     = "group_vars/tidb_servers.yml"
+  groupVarsTikvProxy= "group_vars/proxy_servers.yml"
 	groupVarsTiKV     = "group_vars/tikv_servers.yml"
 	groupVarsPD       = "group_vars/pd_servers.yml"
 	groupVarsTiFlash  = "group_vars/tiflash_servers.yml"
@@ -62,7 +63,7 @@ func ParseAndImportInventory(dir, ansCfgFile string, clsMeta *spec.ClusterMeta, 
 		}
 		clsMeta.Topology.TiDBServers[i] = ins.(*spec.TiDBSpec)
 	}
-	//add tikvProxyServers
+	// add tikvProxyServers
 	for i := 0; i < len(clsMeta.Topology.TikvProxyServers); i++ {
 		s := clsMeta.Topology.TikvProxyServers[i]
 		ins, err := parseDirs(clsMeta.User, s, sshTimeout, sshType)
@@ -211,6 +212,42 @@ func parseGroupVars(dir, ansCfgFile string, clsMeta *spec.ClusterMeta, inv *aini
 		}
 		log.Infof("Imported %d TiDB node(s).", len(clsMeta.Topology.TiDBServers))
 	}
+
+  // proxy_servers
+  if grp, ok := inv.Groups["proxy_servers"]; ok && len(grp.Hosts) > 0 {
+    grpVars, err := readGroupVars(dir, groupVarsTikvProxy)
+    if err != nil {
+      return err
+    }
+    for _, srv := range grp.Hosts {
+      host := srv.Vars["ansible_host"]
+      if host == "" {
+        host = srv.Name
+      }
+      tmpIns := &spec.TikvProxySpec{
+        Host:     host,
+        SSHPort:  getHostPort(srv, ansCfg),
+        Imported: true,
+      }
+
+      if port, ok := grpVars["proxy_port"]; ok {
+        tmpIns.Port, _ = strconv.Atoi(port)
+      }
+
+      // apply values from the host
+      if port, ok := srv.Vars["proxy_port"]; ok {
+        tmpIns.Port, _ = strconv.Atoi(port)
+      }
+      if logDir, ok := srv.Vars["proxy_log_dir"]; ok {
+        tmpIns.LogDir = strings.Trim(logDir, "\"")
+      }
+
+      log.Debugf("Imported %s node %s:%d.", tmpIns.Role(), tmpIns.Host, tmpIns.GetMainPort())
+
+      clsMeta.Topology.TikvProxyServers = append(clsMeta.Topology.TikvProxyServers, tmpIns)
+    }
+    log.Infof("Imported %d TikvProxy node(s).", len(clsMeta.Topology.TikvProxyServers))
+  }
 
 	// tikv_servers
 	if grp, ok := inv.Groups["tikv_servers"]; ok && len(grp.Hosts) > 0 {
