@@ -19,7 +19,7 @@ package version
 
 var (
 	// TiUPVerMajor is the major version of TiUP
-	TiUPVerMajor = 1
+	TiUPVerMajor = 4
 	// TiUPVerMinor is the minor version of TiUP
 	TiUPVerMinor = 4
 	// TiUPVerPatch is the patch version of TiUP
