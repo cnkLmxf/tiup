@@ -97,6 +97,7 @@ func (m *Manager) Display(name string, opt operator.Options) error {
 		clusterTable = append(clusterTable, []string{
 			color.CyanString(v.ID),
 			v.Role,
+			v.Version,
 			v.Host,
 			v.Ports,
 			v.OsArch,
