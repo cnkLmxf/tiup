@@ -37,6 +37,7 @@ type PrometheusSpec struct {
 	Imported              bool                   `yaml:"imported,omitempty"`
 	Patched               bool                   `yaml:"patched,omitempty"`
 	Port                  int                    `yaml:"port" default:"9090"`
+  Version               string                 `yaml:"version"`
 	DeployDir             string                 `yaml:"deploy_dir,omitempty"`
 	DataDir               string                 `yaml:"data_dir,omitempty"`
 	LogDir                string                 `yaml:"log_dir,omitempty"`
@@ -134,7 +135,7 @@ func (i *MonitorInstance) InitConfig(
 	ctx context.Context,
 	e ctxt.Executor,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
@@ -290,7 +291,7 @@ func (i *MonitorInstance) InitConfig(
 		}
 	}
 
-	if err := i.installRules(ctx, e, paths.Deploy, clusterName, clusterVersion); err != nil {
+	if err := i.installRules(ctx, e, paths.Deploy, clusterName, version); err != nil {
 		return errors.Annotate(err, "install rules")
 	}
 
@@ -306,7 +307,7 @@ func (i *MonitorInstance) InitConfig(
 		return err
 	}
 
-	return checkConfig(ctx, e, i.ComponentName(), clusterVersion, i.OS(), i.Arch(), i.ComponentName()+".yml", paths, nil)
+	return checkConfig(ctx, e, i.ComponentName(), version, i.OS(), i.Arch(), i.ComponentName()+".yml", paths, nil)
 }
 
 // We only really installRules for dm cluster because the rules(*.rules.yml) packed with the prometheus
@@ -384,12 +385,12 @@ func (i *MonitorInstance) ScaleConfig(
 	e ctxt.Executor,
 	topo Topology,
 	clusterName string,
-	clusterVersion string,
+  version string,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
 	s := i.topo
 	defer func() { i.topo = s }()
 	i.topo = topo
-	return i.InitConfig(ctx, e, clusterName, clusterVersion, deployUser, paths)
+	return i.InitConfig(ctx, e, clusterName, version, deployUser, paths)
 }

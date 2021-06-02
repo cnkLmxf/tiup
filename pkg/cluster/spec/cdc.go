@@ -33,6 +33,7 @@ type CDCSpec struct {
 	Imported        bool                   `yaml:"imported,omitempty"`
 	Patched         bool                   `yaml:"patched,omitempty"`
 	Port            int                    `yaml:"port" default:"8300"`
+  Version         string                 `yaml:"version"`
 	DeployDir       string                 `yaml:"deploy_dir,omitempty"`
 	LogDir          string                 `yaml:"log_dir,omitempty"`
 	Offline         bool                   `yaml:"offline,omitempty"`
@@ -121,7 +122,7 @@ func (i *CDCInstance) ScaleConfig(
 	e ctxt.Executor,
 	topo Topology,
 	clusterName,
-	clusterVersion,
+  version,
 	user string,
 	paths meta.DirPaths,
 ) error {
@@ -131,7 +132,7 @@ func (i *CDCInstance) ScaleConfig(
 	}()
 	i.topo = mustBeClusterTopo(topo)
 
-	return i.InitConfig(ctx, e, clusterName, clusterVersion, user, paths)
+	return i.InitConfig(ctx, e, clusterName, version, user, paths)
 }
 
 // InitConfig implements Instance interface.
@@ -139,7 +140,7 @@ func (i *CDCInstance) InitConfig(
 	ctx context.Context,
 	e ctxt.Executor,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
@@ -153,7 +154,7 @@ func (i *CDCInstance) InitConfig(
 	instanceConfig := spec.Config
 
 	configFileSupported := false
-	if semver.Compare(clusterVersion, "v4.0.13") >= 0 && clusterVersion != "v5.0.0-rc" {
+	if semver.Compare(version, "v4.0.13") >= 0 && version != "v5.0.0-rc" {
 		configFileSupported = true
 	} else if len(globalConfig)+len(instanceConfig) > 0 {
 		return perrs.New("server_config is only supported with TiCDC version v4.0.13 or later")

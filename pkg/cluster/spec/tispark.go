@@ -41,6 +41,7 @@ type TiSparkMasterSpec struct {
 	Imported     bool                   `yaml:"imported,omitempty"`
 	Patched      bool                   `yaml:"patched,omitempty"`
 	Port         int                    `yaml:"port" default:"7077"`
+  Version      string                 `yaml:"version"`
 	WebPort      int                    `yaml:"web_port" default:"8080"`
 	DeployDir    string                 `yaml:"deploy_dir,omitempty"`
 	JavaHome     string                 `yaml:"java_home,omitempty" validate:"java_home:editable"`
@@ -88,6 +89,7 @@ type TiSparkWorkerSpec struct {
 	Imported   bool   `yaml:"imported,omitempty"`
 	Patched    bool   `yaml:"patched,omitempty"`
 	Port       int    `yaml:"port" default:"7078"`
+  Version    string `yaml:"version"`
 	WebPort    int    `yaml:"web_port" default:"8081"`
 	DeployDir  string `yaml:"deploy_dir,omitempty"`
 	JavaHome   string `yaml:"java_home,omitempty" validate:"java_home:editable"`
@@ -199,7 +201,7 @@ func (i *TiSparkMasterInstance) InitConfig(
 	ctx context.Context,
 	e ctxt.Executor,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) (err error) {
@@ -290,7 +292,7 @@ func (i *TiSparkMasterInstance) ScaleConfig(
 	e ctxt.Executor,
 	topo Topology,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
@@ -298,7 +300,7 @@ func (i *TiSparkMasterInstance) ScaleConfig(
 	defer func() { i.topo = s }()
 	cluster := mustBeClusterTopo(topo)
 	i.topo = cluster.Merge(i.topo)
-	return i.InitConfig(ctx, e, clusterName, clusterVersion, deployUser, paths)
+	return i.InitConfig(ctx, e, clusterName, version, deployUser, paths)
 }
 
 // TiSparkWorkerComponent represents TiSpark slave component.
@@ -357,7 +359,7 @@ func (i *TiSparkWorkerInstance) InitConfig(
 	ctx context.Context,
 	e ctxt.Executor,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) (err error) {
@@ -463,12 +465,12 @@ func (i *TiSparkWorkerInstance) ScaleConfig(
 	e ctxt.Executor,
 	topo Topology,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
 	s := i.topo
 	defer func() { i.topo = s }()
 	i.topo = topo.Merge(i.topo)
-	return i.InitConfig(ctx, e, clusterName, clusterVersion, deployUser, paths)
+	return i.InitConfig(ctx, e, clusterName, version, deployUser, paths)
 }

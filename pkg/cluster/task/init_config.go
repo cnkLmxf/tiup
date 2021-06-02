@@ -29,7 +29,7 @@ import (
 type InitConfig struct {
 	specManager    *spec.SpecManager
 	clusterName    string
-	clusterVersion string
+	Version string
 	instance       spec.Instance
 	deployUser     string
 	ignoreCheck    bool
@@ -48,7 +48,7 @@ func (c *InitConfig) Execute(ctx context.Context) error {
 		return errors.Annotatef(err, "create cache directory failed: %s", c.paths.Cache)
 	}
 
-	err := c.instance.InitConfig(ctx, exec, c.clusterName, c.clusterVersion, c.deployUser, c.paths)
+	err := c.instance.InitConfig(ctx, exec, c.clusterName, c.Version, c.deployUser, c.paths)
 	if err != nil {
 		if c.ignoreCheck && errors.Cause(err) == spec.ErrorCheckConfig {
 			return nil

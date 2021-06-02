@@ -113,7 +113,7 @@ func (m *Manager) Upgrade(name string, clusterVersion string, opt operator.Optio
 			}
 
 			// backup files of the old version
-			tb = tb.BackupComponent(inst.ComponentName(), base.Version, inst.GetHost(), deployDir)
+			tb = tb.BackupComponent(inst.ComponentName(), inst.GetVersion(), inst.GetHost(), deployDir)
 
 			if deployerInstance, ok := inst.(DeployerInstance); ok {
 				deployerInstance.Deploy(tb, "", deployDir, version, name, clusterVersion)
@@ -145,7 +145,7 @@ func (m *Manager) Upgrade(name string, clusterVersion string, opt operator.Optio
 
 			tb.InitConfig(
 				name,
-				clusterVersion,
+				version,
 				m.specManager,
 				inst,
 				base.User,
@@ -158,6 +158,8 @@ func (m *Manager) Upgrade(name string, clusterVersion string, opt operator.Optio
 				},
 			)
 			copyCompTasks = append(copyCompTasks, tb.Build())
+			// update instance version
+			inst.SetVersion(version)
 		}
 	}
 
@@ -202,7 +204,6 @@ func (m *Manager) Upgrade(name string, clusterVersion string, opt operator.Optio
 	})
 
 	metadata.SetVersion(clusterVersion)
-
 	if err := m.specManager.SaveMeta(name, metadata); err != nil {
 		return err
 	}

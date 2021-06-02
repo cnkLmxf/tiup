@@ -140,7 +140,7 @@ func buildScaleOutTask(
 	var iterErr error
 	// Deploy the new topology and refresh the configuration
 	newPart.IterInstance(func(inst spec.Instance) {
-		version := m.bindVersion(inst.ComponentName(), base.Version)
+		version := m.bindVersion(inst.ComponentName(), inst.GetVersion())
 		deployDir := spec.Abs(base.User, inst.DeployDir())
 		// data dir would be empty for components which don't need it
 		dataDirs := spec.MultiDirAbs(base.User, inst.DataDir())
@@ -210,7 +210,7 @@ func buildScaleOutTask(
 		}
 
 		t := tb.ScaleConfig(name,
-			base.Version,
+			inst.GetVersion(),
 			m.specManager,
 			topo,
 			inst,
@@ -241,7 +241,7 @@ func buildScaleOutTask(
 		if inst.IsImported() {
 			switch compName := inst.ComponentName(); compName {
 			case spec.ComponentGrafana, spec.ComponentPrometheus, spec.ComponentAlertmanager:
-				version := m.bindVersion(compName, base.Version)
+				version := m.bindVersion(compName, inst.GetVersion())
 				tb.Download(compName, inst.OS(), inst.Arch(), version).
 					CopyComponent(compName, inst.OS(), inst.Arch(), version, "", inst.GetHost(), deployDir)
 			}
@@ -250,7 +250,7 @@ func buildScaleOutTask(
 
 		// Refresh all configuration
 		t := tb.InitConfig(name,
-			base.Version,
+			inst.GetVersion(),
 			m.specManager,
 			inst,
 			base.User,
@@ -280,6 +280,7 @@ func buildScaleOutTask(
 		uninitializedHosts,
 		topo.BaseTopo().GlobalOptions,
 		topo.BaseTopo().MonitoredOptions,
+		// monitor component,so use baseVersion
 		base.Version,
 		gOpt,
 	)
@@ -481,7 +482,7 @@ func buildRegenConfigTasks(m *Manager, name string, topo spec.Topology, base *sp
 		if instance.IsImported() {
 			switch compName {
 			case spec.ComponentGrafana, spec.ComponentPrometheus, spec.ComponentAlertmanager:
-				version := m.bindVersion(compName, base.Version)
+				version := m.bindVersion(compName, instance.GetVersion())
 				tb.Download(compName, instance.OS(), instance.Arch(), version).
 					CopyComponent(
 						compName,
@@ -499,7 +500,7 @@ func buildRegenConfigTasks(m *Manager, name string, topo spec.Topology, base *sp
 		t := tb.
 			InitConfig(
 				name,
-				base.Version,
+				instance.GetVersion(),
 				m.specManager,
 				instance,
 				base.User,
@@ -533,7 +534,7 @@ func buildDownloadCompTasks(clusterVersion string, topo spec.Topology, bindVersi
 				// download spark as dependency of tispark
 				tasks = append(tasks, buildDownloadSparkTask(inst))
 			} else {
-				version = bindVersion(inst.ComponentName(), clusterVersion)
+				version = bindVersion(inst.ComponentName(), inst.GetVersion())
 			}
 
 			t := task.NewBuilder().

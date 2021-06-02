@@ -185,11 +185,11 @@ func (b *Builder) BackupComponent(component, fromVer string, host, deployDir str
 }
 
 // InitConfig appends a CopyComponent task to the current task collection
-func (b *Builder) InitConfig(clusterName, clusterVersion string, specManager *spec.SpecManager, inst spec.Instance, deployUser string, ignoreCheck bool, paths meta.DirPaths) *Builder {
+func (b *Builder) InitConfig(clusterName, version string, specManager *spec.SpecManager, inst spec.Instance, deployUser string, ignoreCheck bool, paths meta.DirPaths) *Builder {
 	b.tasks = append(b.tasks, &InitConfig{
 		specManager:    specManager,
 		clusterName:    clusterName,
-		clusterVersion: clusterVersion,
+		Version:        version,
 		instance:       inst,
 		deployUser:     deployUser,
 		ignoreCheck:    ignoreCheck,
@@ -199,11 +199,11 @@ func (b *Builder) InitConfig(clusterName, clusterVersion string, specManager *sp
 }
 
 // ScaleConfig generate temporary config on scaling
-func (b *Builder) ScaleConfig(clusterName, clusterVersion string, specManager *spec.SpecManager, topo spec.Topology, inst spec.Instance, deployUser string, paths meta.DirPaths) *Builder {
+func (b *Builder) ScaleConfig(clusterName, version string, specManager *spec.SpecManager, topo spec.Topology, inst spec.Instance, deployUser string, paths meta.DirPaths) *Builder {
 	b.tasks = append(b.tasks, &ScaleConfig{
 		specManager:    specManager,
 		clusterName:    clusterName,
-		clusterVersion: clusterVersion,
+		version:        version,
 		base:           topo,
 		instance:       inst,
 		deployUser:     deployUser,

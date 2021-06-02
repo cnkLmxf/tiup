@@ -29,6 +29,7 @@ import (
 type AlertmanagerSpec struct {
 	Host            string               `yaml:"host"`
 	SSHPort         int                  `yaml:"ssh_port,omitempty" validate:"ssh_port:editable"`
+  Version         string               `yaml:"version"`
 	Imported        bool                 `yaml:"imported,omitempty"`
 	Patched         bool                 `yaml:"patched,omitempty"`
 	WebPort         int                  `yaml:"web_port" default:"9093"`
@@ -120,7 +121,7 @@ func (i *AlertManagerInstance) InitConfig(
 	ctx context.Context,
 	e ctxt.Executor,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
@@ -163,7 +164,7 @@ func (i *AlertManagerInstance) InitConfig(
 	if err := i.TransferLocalConfigFile(ctx, e, configPath, dst); err != nil {
 		return err
 	}
-	return checkConfig(ctx, e, i.ComponentName(), clusterVersion, i.OS(), i.Arch(), i.ComponentName()+".yml", paths, nil)
+	return checkConfig(ctx, e, i.ComponentName(), version, i.OS(), i.Arch(), i.ComponentName()+".yml", paths, nil)
 }
 
 // ScaleConfig deploy temporary config on scaling
@@ -172,12 +173,12 @@ func (i *AlertManagerInstance) ScaleConfig(
 	e ctxt.Executor,
 	topo Topology,
 	clusterName string,
-	clusterVersion string,
+  version string,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
 	s := i.topo
 	defer func() { i.topo = s }()
 	i.topo = topo
-	return i.InitConfig(ctx, e, clusterName, clusterVersion, deployUser, paths)
+	return i.InitConfig(ctx, e, clusterName, version, deployUser, paths)
 }

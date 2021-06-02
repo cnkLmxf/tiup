@@ -35,6 +35,7 @@ type GrafanaSpec struct {
 	Imported        bool                 `yaml:"imported,omitempty"`
 	Patched         bool                 `yaml:"patched,omitempty"`
 	Port            int                  `yaml:"port" default:"3000"`
+  Version         string               `yaml:"version"`
 	DeployDir       string               `yaml:"deploy_dir,omitempty"`
 	ResourceControl meta.ResourceControl `yaml:"resource_control,omitempty" validate:"resource_control:editable"`
 	Arch            string               `yaml:"arch,omitempty"`
@@ -121,7 +122,7 @@ func (i *GrafanaInstance) InitConfig(
 	ctx context.Context,
 	e ctxt.Executor,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
@@ -164,7 +165,7 @@ func (i *GrafanaInstance) InitConfig(
 		return err
 	}
 
-	if err := i.installDashboards(ctx, e, paths.Deploy, clusterName, clusterVersion); err != nil {
+	if err := i.installDashboards(ctx, e, paths.Deploy, clusterName, version); err != nil {
 		return errors.Annotate(err, "install dashboards")
 	}
 
@@ -294,12 +295,12 @@ func (i *GrafanaInstance) ScaleConfig(
 	e ctxt.Executor,
 	topo Topology,
 	clusterName string,
-	clusterVersion string,
+  version string,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
 	s := i.topo
 	defer func() { i.topo = s }()
 	i.topo = topo.Merge(i.topo)
-	return i.InitConfig(ctx, e, clusterName, clusterVersion, deployUser, paths)
+	return i.InitConfig(ctx, e, clusterName, version, deployUser, paths)
 }

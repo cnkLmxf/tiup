@@ -49,6 +49,7 @@ type TiKVSpec struct {
 	Imported        bool                   `yaml:"imported,omitempty"`
 	Patched         bool                   `yaml:"patched,omitempty"`
 	Port            int                    `yaml:"port" default:"20160"`
+  Version         string                 `yaml:"version"`
 	StatusPort      int                    `yaml:"status_port" default:"20180"`
 	DeployDir       string                 `yaml:"deploy_dir,omitempty"`
 	DataDir         string                 `yaml:"data_dir,omitempty"`
@@ -189,7 +190,7 @@ func (i *TiKVInstance) InitConfig(
 	ctx context.Context,
 	e ctxt.Executor,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
@@ -201,7 +202,7 @@ func (i *TiKVInstance) InitConfig(
 	enableTLS := topo.GlobalOptions.TLSEnabled
 	spec := i.InstanceSpec.(*TiKVSpec)
 	cfg := scripts.NewTiKVScript(
-		clusterVersion,
+    version,
 		i.GetHost(),
 		paths.Deploy,
 		paths.Data[0],
@@ -272,7 +273,7 @@ func (i *TiKVInstance) InitConfig(
 		return err
 	}
 
-	return checkConfig(ctx, e, i.ComponentName(), clusterVersion, i.OS(), i.Arch(), i.ComponentName()+".toml", paths, nil)
+	return checkConfig(ctx, e, i.ComponentName(), version, i.OS(), i.Arch(), i.ComponentName()+".toml", paths, nil)
 }
 
 // ScaleConfig deploy temporary config on scaling
@@ -281,7 +282,7 @@ func (i *TiKVInstance) ScaleConfig(
 	e ctxt.Executor,
 	topo Topology,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
@@ -290,7 +291,7 @@ func (i *TiKVInstance) ScaleConfig(
 		i.topo = s
 	}()
 	i.topo = mustBeClusterTopo(topo)
-	return i.InitConfig(ctx, e, clusterName, clusterVersion, deployUser, paths)
+	return i.InitConfig(ctx, e, clusterName, version, deployUser, paths)
 }
 
 var _ RollingUpdateInstance = &TiKVInstance{}

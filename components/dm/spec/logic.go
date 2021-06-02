@@ -107,7 +107,7 @@ func (i *MasterInstance) InitConfig(
 	ctx context.Context,
 	e ctxt.Executor,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
@@ -146,11 +146,11 @@ func (i *MasterInstance) ScaleConfig(
 	e ctxt.Executor,
 	topo spec.Topology,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
-	if err := i.InitConfig(ctx, e, clusterName, clusterVersion, deployUser, paths); err != nil {
+	if err := i.InitConfig(ctx, e, clusterName, version, deployUser, paths); err != nil {
 		return err
 	}
 
@@ -236,7 +236,7 @@ func (i *WorkerInstance) InitConfig(
 	ctx context.Context,
 	e ctxt.Executor,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {

@@ -83,10 +83,11 @@ type Instance interface {
 	InstanceSpec
 	ID() string
 	Ready(context.Context, ctxt.Executor, uint64) error
-	InitConfig(ctx context.Context, e ctxt.Executor, clusterName string, clusterVersion string, deployUser string, paths meta.DirPaths) error
-	ScaleConfig(ctx context.Context, e ctxt.Executor, topo Topology, clusterName string, clusterVersion string, deployUser string, paths meta.DirPaths) error
+	InitConfig(ctx context.Context, e ctxt.Executor, clusterName string, version string, deployUser string, paths meta.DirPaths) error
+	ScaleConfig(ctx context.Context, e ctxt.Executor, topo Topology, clusterName string, version string, deployUser string, paths meta.DirPaths) error
 	PrepareStart(ctx context.Context, tlsCfg *tls.Config) error
 	ComponentName() string
+  GetVersion() string
 	InstanceName() string
 	ServiceName() string
 	GetHost() string
@@ -102,6 +103,7 @@ type Instance interface {
 	Arch() string
 	IsPatched() bool
 	SetPatched(bool)
+	SetVersion(string)
 }
 
 // PortStarted wait until a port is being listened
@@ -133,9 +135,9 @@ type BaseInstance struct {
 	Name       string
 	Host       string
 	ListenHost string
+	Version    string
 	Port       int
 	SSHP       int
-
 	Ports    []int
 	Dirs     []string
 	StatusFn func(tlsCfg *tls.Config, pdHosts ...string) string
@@ -281,6 +283,12 @@ func (i *BaseInstance) ID() string {
 // ComponentName implements Instance interface
 func (i *BaseInstance) ComponentName() string {
 	return i.Name
+}
+func (i *BaseInstance) GetVersion() string{
+  return i.Version
+}
+func (i *BaseInstance) SetVersion(version string) {
+  i.Version = version
 }
 
 // InstanceName implements Instance interface

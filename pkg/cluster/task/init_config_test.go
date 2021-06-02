@@ -78,7 +78,7 @@ func (s *initConfigSuite) TestCheckConfig(c *check.C) {
 
 	t := &InitConfig{
 		clusterName:    "test-cluster-name",
-		clusterVersion: "v4.0.0",
+		Version: "v4.0.0",
 		paths: meta.DirPaths{
 			Cache: "/tmp",
 		},

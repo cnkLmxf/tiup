@@ -41,6 +41,7 @@ type InstInfo struct {
 	ID        string `json:"id"`
 	Role      string `json:"role"`
 	Host      string `json:"host"`
+	Version   string `json:"version"`
 	Ports     string `json:"ports"`
 	OsArch    string `json:"os_arch"`
 	Status    string `json:"status"`
@@ -89,7 +90,7 @@ func (m *Manager) Display(name string, opt operator.Options) error {
 	// display topology
 	clusterTable := [][]string{
 		// Header
-		{"ID", "Role", "Host", "Ports", "OS/Arch", "Status", "Data Dir", "Deploy Dir"},
+		{"ID", "Role","Version", "Host", "Ports", "OS/Arch", "Status", "Data Dir", "Deploy Dir"},
 	}
 	masterActive := make([]string, 0)
 	for _, v := range clusterInstInfos {
@@ -260,6 +261,7 @@ func (m *Manager) GetClusterTopology(name string, opt operator.Options) ([]InstI
 		clusterInstInfos = append(clusterInstInfos, InstInfo{
 			ID:            ins.ID(),
 			Role:          roleName,
+			Version:       metadata.GetBaseMeta().Version,
 			Host:          ins.GetHost(),
 			Ports:         utils.JoinInt(ins.UsedPorts(), "/"),
 			OsArch:        cliutil.OsArch(ins.OS(), ins.Arch()),

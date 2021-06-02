@@ -33,6 +33,7 @@ type DrainerSpec struct {
 	Imported        bool                   `yaml:"imported,omitempty"`
 	Patched         bool                   `yaml:"patched,omitempty"`
 	Port            int                    `yaml:"port" default:"8249"`
+  Version         string                 `yaml:"version"`
 	DeployDir       string                 `yaml:"deploy_dir,omitempty"`
 	DataDir         string                 `yaml:"data_dir,omitempty"`
 	LogDir          string                 `yaml:"log_dir,omitempty"`
@@ -122,7 +123,7 @@ func (i *DrainerInstance) ScaleConfig(
 	e ctxt.Executor,
 	topo Topology,
 	clusterName,
-	clusterVersion,
+  version,
 	user string,
 	paths meta.DirPaths,
 ) error {
@@ -132,7 +133,7 @@ func (i *DrainerInstance) ScaleConfig(
 	}()
 	i.topo = mustBeClusterTopo(topo)
 
-	return i.InitConfig(ctx, e, clusterName, clusterVersion, user, paths)
+	return i.InitConfig(ctx, e, clusterName, version, user, paths)
 }
 
 // InitConfig implements Instance interface.
@@ -140,7 +141,7 @@ func (i *DrainerInstance) InitConfig(
 	ctx context.Context,
 	e ctxt.Executor,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
@@ -227,5 +228,5 @@ func (i *DrainerInstance) InitConfig(
 		return err
 	}
 
-	return checkConfig(ctx, e, i.ComponentName(), clusterVersion, i.OS(), i.Arch(), i.ComponentName()+".toml", paths, nil)
+	return checkConfig(ctx, e, i.ComponentName(), version, i.OS(), i.Arch(), i.ComponentName()+".toml", paths, nil)
 }

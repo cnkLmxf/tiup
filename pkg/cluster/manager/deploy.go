@@ -90,6 +90,9 @@ func (m *Manager) Deploy(
 
 	instCnt := 0
 	topo.IterInstance(func(inst spec.Instance) {
+	  if(inst.GetVersion() == "") {
+	    inst.SetVersion(clusterVersion)
+    }
 		switch inst.ComponentName() {
 		// monitoring components are only useful when deployed with
 		// core components, we do not support deploying any bare
@@ -241,7 +244,7 @@ func (m *Manager) Deploy(
 
 	// Deploy components to remote
 	topo.IterInstance(func(inst spec.Instance) {
-		version := m.bindVersion(inst.ComponentName(), clusterVersion)
+		version := m.bindVersion(inst.ComponentName(), inst.GetVersion())
 		deployDir := spec.Abs(globalOptions.User, inst.DeployDir())
 		// data dir would be empty for components which don't need it
 		dataDirs := spec.MultiDirAbs(globalOptions.User, inst.DataDir())
@@ -302,7 +305,7 @@ func (m *Manager) Deploy(
 		// generate configs for the component
 		t = t.InitConfig(
 			name,
-			clusterVersion,
+      inst.GetVersion(),
 			m.specManager,
 			inst,
 			globalOptions.User,

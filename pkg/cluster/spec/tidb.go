@@ -33,6 +33,7 @@ type TiDBSpec struct {
 	Imported        bool                   `yaml:"imported,omitempty"`
 	Patched         bool                   `yaml:"patched,omitempty"`
 	Port            int                    `yaml:"port" default:"4000"`
+  Version         string                 `yaml:"version"`
 	StatusPort      int                    `yaml:"status_port" default:"10080"`
 	DeployDir       string                 `yaml:"deploy_dir,omitempty"`
 	LogDir          string                 `yaml:"log_dir,omitempty"`
@@ -120,7 +121,7 @@ func (i *TiDBInstance) InitConfig(
 	ctx context.Context,
 	e ctxt.Executor,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
@@ -199,7 +200,7 @@ func (i *TiDBInstance) InitConfig(
 		return err
 	}
 
-	return checkConfig(ctx, e, i.ComponentName(), clusterVersion, i.OS(), i.Arch(), i.ComponentName()+".toml", paths, nil)
+	return checkConfig(ctx, e, i.ComponentName(), version, i.OS(), i.Arch(), i.ComponentName()+".toml", paths, nil)
 }
 
 // ScaleConfig deploy temporary config on scaling
@@ -208,14 +209,14 @@ func (i *TiDBInstance) ScaleConfig(
 	e ctxt.Executor,
 	topo Topology,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
 	s := i.topo
 	defer func() { i.topo = s }()
 	i.topo = mustBeClusterTopo(topo)
-	return i.InitConfig(ctx, e, clusterName, clusterVersion, deployUser, paths)
+	return i.InitConfig(ctx, e, clusterName, version, deployUser, paths)
 }
 
 func mustBeClusterTopo(topo Topology) *Specification {

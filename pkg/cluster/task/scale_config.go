@@ -27,7 +27,7 @@ import (
 type ScaleConfig struct {
 	specManager    *spec.SpecManager
 	clusterName    string
-	clusterVersion string
+	version string
 	instance       spec.Instance
 	base           spec.Topology
 	deployUser     string
@@ -47,7 +47,7 @@ func (c *ScaleConfig) Execute(ctx context.Context) error {
 		return err
 	}
 
-	return c.instance.ScaleConfig(ctx, exec, c.base, c.clusterName, c.clusterVersion, c.deployUser, c.paths)
+	return c.instance.ScaleConfig(ctx, exec, c.base, c.clusterName, c.version, c.deployUser, c.paths)
 }
 
 // Rollback implements the Task interface

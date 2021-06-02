@@ -43,6 +43,7 @@ type TiFlashSpec struct {
 	Imported             bool                   `yaml:"imported,omitempty"`
 	Patched              bool                   `yaml:"patched,omitempty"`
 	TCPPort              int                    `yaml:"tcp_port" default:"9000"`
+  Version              string                 `yaml:"version"`
 	HTTPPort             int                    `yaml:"http_port" default:"8123"`
 	FlashServicePort     int                    `yaml:"flash_service_port" default:"3930"`
 	FlashProxyPort       int                    `yaml:"flash_proxy_port" default:"20170"`
@@ -499,7 +500,7 @@ func (i *TiFlashInstance) InitConfig(
 	ctx context.Context,
 	e ctxt.Executor,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
@@ -549,7 +550,7 @@ func (i *TiFlashInstance) InitConfig(
 		return err
 	}
 
-	conf, err := i.InitTiFlashLearnerConfig(cfg, clusterVersion, topo.ServerConfigs.TiFlashLearner)
+	conf, err := i.InitTiFlashLearnerConfig(cfg, version, topo.ServerConfigs.TiFlashLearner)
 	if err != nil {
 		return err
 	}
@@ -582,7 +583,7 @@ func (i *TiFlashInstance) InitConfig(
 	}
 
 	// Init the configuration using cfg and server_configs
-	if conf, err = i.initTiFlashConfig(cfg, clusterVersion, topo.ServerConfigs.TiFlash); err != nil {
+	if conf, err = i.initTiFlashConfig(cfg, version, topo.ServerConfigs.TiFlash); err != nil {
 		return err
 	}
 
@@ -613,7 +614,7 @@ func (i *TiFlashInstance) InitConfig(
 	}
 
 	// Check the configuration of instance level
-	if conf, err = i.mergeTiFlashInstanceConfig(clusterVersion, conf, spec.Config); err != nil {
+	if conf, err = i.mergeTiFlashInstanceConfig(version, conf, spec.Config); err != nil {
 		return err
 	}
 
@@ -626,7 +627,7 @@ func (i *TiFlashInstance) ScaleConfig(
 	e ctxt.Executor,
 	topo Topology,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
@@ -635,7 +636,7 @@ func (i *TiFlashInstance) ScaleConfig(
 		i.topo = s
 	}()
 	i.topo = mustBeClusterTopo(topo)
-	return i.InitConfig(ctx, e, clusterName, clusterVersion, deployUser, paths)
+	return i.InitConfig(ctx, e, clusterName, version, deployUser, paths)
 }
 
 type replicateConfig struct {

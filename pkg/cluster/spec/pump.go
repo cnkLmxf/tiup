@@ -33,6 +33,7 @@ type PumpSpec struct {
 	Imported        bool                   `yaml:"imported,omitempty"`
 	Patched         bool                   `yaml:"patched,omitempty"`
 	Port            int                    `yaml:"port" default:"8250"`
+  Version         string                 `yaml:"version"`
 	DeployDir       string                 `yaml:"deploy_dir,omitempty"`
 	DataDir         string                 `yaml:"data_dir,omitempty"`
 	LogDir          string                 `yaml:"log_dir,omitempty"`
@@ -121,7 +122,7 @@ func (i *PumpInstance) ScaleConfig(
 	e ctxt.Executor,
 	topo Topology,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
@@ -131,7 +132,7 @@ func (i *PumpInstance) ScaleConfig(
 	}()
 	i.topo = mustBeClusterTopo(topo)
 
-	return i.InitConfig(ctx, e, clusterName, clusterVersion, deployUser, paths)
+	return i.InitConfig(ctx, e, clusterName, version, deployUser, paths)
 }
 
 // InitConfig implements Instance interface.
@@ -139,7 +140,7 @@ func (i *PumpInstance) InitConfig(
 	ctx context.Context,
 	e ctxt.Executor,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {

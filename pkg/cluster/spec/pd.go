@@ -37,6 +37,7 @@ type PDSpec struct {
 	SSHPort    int    `yaml:"ssh_port,omitempty" validate:"ssh_port:editable"`
 	Imported   bool   `yaml:"imported,omitempty"`
 	Patched    bool   `yaml:"patched,omitempty"`
+  Version    string `yaml:"version"`
 	// Use Name to get the name with a default value if it's empty.
 	Name            string                 `yaml:"name"`
 	ClientPort      int                    `yaml:"client_port" default:"2379"`
@@ -150,7 +151,7 @@ func (i *PDInstance) InitConfig(
 	ctx context.Context,
 	e ctxt.Executor,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
@@ -235,7 +236,7 @@ func (i *PDInstance) InitConfig(
 		return err
 	}
 
-	return checkConfig(ctx, e, i.ComponentName(), clusterVersion, i.OS(), i.Arch(), i.ComponentName()+".toml", paths, nil)
+	return checkConfig(ctx, e, i.ComponentName(), version, i.OS(), i.Arch(), i.ComponentName()+".toml", paths, nil)
 }
 
 // ScaleConfig deploy temporary config on scaling
@@ -244,12 +245,12 @@ func (i *PDInstance) ScaleConfig(
 	e ctxt.Executor,
 	topo Topology,
 	clusterName,
-	clusterVersion,
+  version,
 	deployUser string,
 	paths meta.DirPaths,
 ) error {
 	// We need pd.toml here, but we don't need to check it
-	if err := i.InitConfig(ctx, e, clusterName, clusterVersion, deployUser, paths); err != nil &&
+	if err := i.InitConfig(ctx, e, clusterName, version, deployUser, paths); err != nil &&
 		errors.Cause(err) != ErrorCheckConfig {
 		return err
 	}
