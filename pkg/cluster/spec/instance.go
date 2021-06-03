@@ -135,7 +135,6 @@ type BaseInstance struct {
 	Name       string
 	Host       string
 	ListenHost string
-	Version    string
 	Port       int
 	SSHP       int
 	Ports    []int
@@ -285,10 +284,14 @@ func (i *BaseInstance) ComponentName() string {
 	return i.Name
 }
 func (i *BaseInstance) GetVersion() string{
-  return i.Version
+  return reflect.Indirect(reflect.ValueOf(i.InstanceSpec)).FieldByName("Version").String()
 }
 func (i *BaseInstance) SetVersion(version string) {
-  i.Version = version
+  v := reflect.Indirect(reflect.ValueOf(i.InstanceSpec)).FieldByName("Version")
+  if !v.CanSet() {
+    return
+  }
+  v.SetString(version)
 }
 
 // InstanceName implements Instance interface
