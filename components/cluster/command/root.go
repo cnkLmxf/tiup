@@ -148,6 +148,7 @@ func init() {
 		newScaleOutCmd(),
 		newDestroyCmd(),
 		newCleanCmd(),
+    newUpdateCmd(),
 		newUpgradeCmd(),
 		newDisplayCmd(),
 		newPruneCmd(),
