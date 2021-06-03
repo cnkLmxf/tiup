@@ -16,7 +16,8 @@ package manager
 import (
 	"context"
 	"fmt"
-	"os"
+  "github.com/pingcap/tiup/pkg/set"
+  "os"
 
 	"github.com/fatih/color"
 	"github.com/joomcode/errorx"
@@ -36,7 +37,7 @@ import (
 )
 
 // Upgrade the cluster.
-func (m *Manager) Upgrade(name string, clusterVersion string, opt operator.Options, skipConfirm, offline bool) error {
+func (m *Manager) Update(name string, componentVersionMap map[string]utils.Version, opt operator.Options, skipConfirm, offline bool) error {
 	if err := clusterutil.ValidateClusterNameOrError(name); err != nil {
 		return err
 	}
@@ -55,33 +56,37 @@ func (m *Manager) Upgrade(name string, clusterVersion string, opt operator.Optio
 
 		uniqueComps = map[string]struct{}{}
 	)
+  // add role and instance filter
+  roleFilter := set.NewStringSet(opt.Roles...)
+  nodeFilter := set.NewStringSet(opt.Nodes...)
+  components := topo.ComponentsByUpdateOrder()
+  components = operator.FilterComponent(components, roleFilter)
 
-	if err := versionCompare(base.Version, clusterVersion); err != nil {
-		return err
-	}
+	//if err := updateVersionCompare(base.Version, clusterVersion); err != nil {
+	//	return err
+	//}
 
 	if !skipConfirm {
 		if err := cliutil.PromptForConfirmOrAbortError(
-			"This operation will upgrade %s %s cluster %s to %s.\nDo you want to continue? [y/N]:",
+			"This operation will update %s %s cluster %s to %s.\nDo you want to continue? [y/N]:",
 			m.sysName,
 			color.HiYellowString(base.Version),
 			color.HiYellowString(name),
-			color.HiYellowString(clusterVersion)); err != nil {
+			color.HiYellowString("UnKnow")); err != nil {
 			return err
 		}
 		log.Infof("Upgrading cluster...")
 	}
 
 	hasImported := false
-	for _, comp := range topo.ComponentsByUpdateOrder() {
-		for _, inst := range comp.Instances() {
+	for _, comp := range components {
+    insts := operator.FilterInstance(comp.Instances(),nodeFilter)
+		for _, inst := range insts {
 			compName := inst.ComponentName()
-			// Compatible with the old version
-			var instanceVersion = inst.GetVersion()
-			if(instanceVersion == "") {
-        instanceVersion = clusterVersion
-      }
-			version := m.bindVersion(inst.ComponentName(), clusterVersion)
+			// update old version
+			componentVersion := componentVersionMap[compName]
+			inst.SetVersion(componentVersion.String())
+			version := m.bindVersion(inst.ComponentName(), componentVersion.String())
 
 			// Download component from repository
 			key := fmt.Sprintf("%s-%s-%s-%s", compName, version, inst.OS(), inst.Arch())
@@ -118,10 +123,10 @@ func (m *Manager) Upgrade(name string, clusterVersion string, opt operator.Optio
 			}
 
 			// backup files of the old version
-			tb = tb.BackupComponent(inst.ComponentName(), instanceVersion, inst.GetHost(), deployDir)
+			tb = tb.BackupComponent(inst.ComponentName(), inst.GetVersion(), inst.GetHost(), deployDir)
 
 			if deployerInstance, ok := inst.(DeployerInstance); ok {
-				deployerInstance.Deploy(tb, "", deployDir, version, name, clusterVersion)
+				deployerInstance.Deploy(tb, "", deployDir, version, name, inst.GetVersion())
 			} else {
 				// copy dependency component if needed
 				switch inst.ComponentName() {
@@ -208,7 +213,6 @@ func (m *Manager) Upgrade(name string, clusterVersion string, opt operator.Optio
 		}
 	})
 
-	metadata.SetVersion(clusterVersion)
 	if err := m.specManager.SaveMeta(name, metadata); err != nil {
 		return err
 	}
@@ -218,7 +222,7 @@ func (m *Manager) Upgrade(name string, clusterVersion string, opt operator.Optio
 	return nil
 }
 
-func versionCompare(curVersion, newVersion string) error {
+func updateVersionCompare(curVersion, newVersion string) error {
 	// Can always upgrade to 'nightly' event the current version is 'nightly'
 	if newVersion == utils.NightlyVersionAlias {
 		return nil

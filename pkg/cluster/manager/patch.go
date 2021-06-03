@@ -61,8 +61,12 @@ func (m *Manager) Patch(name string, packagePath string, opt operator.Options, o
 	var replacePackageTasks []task.Task
 	for _, inst := range insts {
 		deployDir := spec.Abs(base.User, inst.DeployDir())
+		instanceVersion := inst.GetVersion()
+		if(instanceVersion == ""){
+		  instanceVersion = base.Version
+    }
 		tb := task.NewBuilder()
-		tb.BackupComponent(inst.ComponentName(), inst.GetVersion(), inst.GetHost(), deployDir).
+		tb.BackupComponent(inst.ComponentName(), instanceVersion, inst.GetHost(), deployDir).
 			InstallPackage(packagePath, inst.GetHost(), deployDir)
 		replacePackageTasks = append(replacePackageTasks, tb.Build())
 	}

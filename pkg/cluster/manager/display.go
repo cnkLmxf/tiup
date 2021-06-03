@@ -262,7 +262,7 @@ func (m *Manager) GetClusterTopology(name string, opt operator.Options) ([]InstI
 		clusterInstInfos = append(clusterInstInfos, InstInfo{
 			ID:            ins.ID(),
 			Role:          roleName,
-			Version:       metadata.GetBaseMeta().Version,
+			Version:       ins.GetVersion(),
 			Host:          ins.GetHost(),
 			Ports:         utils.JoinInt(ins.UsedPorts(), "/"),
 			OsArch:        cliutil.OsArch(ins.OS(), ins.Arch()),

@@ -100,6 +100,11 @@ func buildScaleOutTask(
 			return
 		}
 
+		// add instance version
+		if(instance.GetVersion() == ""){
+		  instance.SetVersion(metadata.GetBaseMeta().Version)
+    }
+
 		uninitializedHosts[host] = hostInfo{
 			ssh:  instance.GetSSHPort(),
 			os:   instance.OS(),
@@ -230,6 +235,9 @@ func buildScaleOutTask(
 	hasImported := false
 
 	mergedTopo.IterInstance(func(inst spec.Instance) {
+	  if(inst.GetVersion() ==""){
+	    inst.SetVersion(metadata.GetBaseMeta().Version)
+    }
 		deployDir := spec.Abs(base.User, inst.DeployDir())
 		// data dir would be empty for components which don't need it
 		dataDirs := spec.MultiDirAbs(base.User, inst.DataDir())
@@ -467,6 +475,9 @@ func buildRegenConfigTasks(m *Manager, name string, topo spec.Topology, base *sp
 	deletedNodes := set.NewStringSet(nodes...)
 
 	topo.IterInstance(func(instance spec.Instance) {
+	  if(instance.GetVersion() == ""){
+	    instance.SetVersion(base.Version)
+    }
 		if deletedNodes.Exist(instance.ID()) {
 			return
 		}
@@ -524,6 +535,9 @@ func buildDownloadCompTasks(clusterVersion string, topo spec.Topology, bindVersi
 	var tasks []*task.StepDisplay
 	uniqueTaskList := set.NewStringSet()
 	topo.IterInstance(func(inst spec.Instance) {
+	  if(inst.GetVersion() == ""){
+	    inst.SetVersion(clusterVersion)
+    }
 		key := fmt.Sprintf("%s-%s-%s", inst.ComponentName(), inst.OS(), inst.Arch())
 		if found := uniqueTaskList.Exist(key); !found {
 			uniqueTaskList.Insert(key)
