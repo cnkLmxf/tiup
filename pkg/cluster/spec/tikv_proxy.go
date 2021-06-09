@@ -127,6 +127,7 @@ func (i *TikvProxyInstance) InitConfig(
 	enableTLS := topo.GlobalOptions.TLSEnabled
 	spec := i.InstanceSpec.(*TikvProxySpec)
 	cfg := scripts.NewTikvProxyScript(
+    clusterName,
 		i.GetHost(),
 		paths.Deploy,
 		paths.Log,

@@ -22,6 +22,7 @@ exec numactl --cpunodebind={{.NumaNode}} --membind={{.NumaNode}} env GODEBUG=mad
 {{- else}}
 exec env GODEBUG=madvdontneed=1 bin/tikv-proxy \
 {{- end}}
+    --name="{{.Name}}" \
     --client-addr="{{.ListenHost}}:{{.Port}}" \
     --pd-addrs="{{template "PDList" .Endpoints}}" \
     --config=conf/proxy.toml \

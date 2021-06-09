@@ -35,8 +35,9 @@ type TikvProxyScript struct {
 }
 
 // NewTikvProxyScript returns a TikvProxyScript with given arguments
-func NewTikvProxyScript(ip, deployDir, logDir string) *TikvProxyScript {
+func NewTikvProxyScript(name,ip, deployDir, logDir string) *TikvProxyScript {
 	return &TikvProxyScript{
+	  Name: name,
 		IP:        ip,
 		Port:      21000,
 		DeployDir: deployDir,
